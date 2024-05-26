@@ -22,7 +22,8 @@ const styles = StyleSheet.create({
     container: {
         backgroundColor: "transparent",
         height: 60,
-        padding: 10,
+        paddingVertical: 10,
+        paddingHorizontal: 20,
         justifyContent: "space-between",
         flexDirection: "row",
         alignItems: "center",
