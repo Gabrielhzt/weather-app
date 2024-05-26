@@ -74,7 +74,7 @@ export default function TabOneScreen() {
                     <Image source={require('@/assets/images/113.png')} style={{width: 60, height: 60}} />
                     <Text style={styles.text}>15:00</Text>
                   </View>
-                  <View style={{width: 25}}></View>
+                  <View style={{width: 20}}></View>
               </ScrollView>
             </View>
           </View>
@@ -141,6 +141,6 @@ const styles = StyleSheet.create({
   day: {
     justifyContent: "space-around",
     alignItems: "center",
-    marginLeft: 25
+    marginLeft: 20
   }
 });

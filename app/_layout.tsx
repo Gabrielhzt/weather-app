@@ -1,3 +1,4 @@
+import SearchHeader from '@/components/searchHeader';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
@@ -48,7 +49,7 @@ function RootLayoutNav() {
   return (
     <Stack>
       <Stack.Screen name="index" />
-      <Stack.Screen name="modal" options={{ presentation: 'modal' }} />
+      <Stack.Screen name="search" options={{ presentation: 'modal', header: () => <SearchHeader /> }} />
     </Stack>
   );
 }

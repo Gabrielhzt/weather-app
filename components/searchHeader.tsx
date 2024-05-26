@@ -1,17 +1,17 @@
 import React from 'react';
 import { View, Text, SafeAreaView, StyleSheet, TouchableOpacity } from 'react-native';
-import { AntDesign } from '@expo/vector-icons';
+import { MaterialIcons } from '@expo/vector-icons';
 import { useNavigation } from 'expo-router';
 
-const Header = () => {
+const SearchHeader = () => {
     const navigation = useNavigation();
 
     return (
-        <SafeAreaView style={{ backgroundColor: '#006AB6'}}>
+        <SafeAreaView style={{ backgroundColor: '#000'}}>
             <View style={styles.container}>
-                <Text style={styles.title}>New York</Text>
-                <TouchableOpacity onPress={() => navigation.navigate('search')}>
-                    <AntDesign name="bars" size={28} color="#fff" />
+                <Text style={styles.title}>Search</Text>
+                <TouchableOpacity onPress={() => navigation.navigate('index')}>
+                <MaterialIcons name="keyboard-arrow-down" size={40} color="#fff" />
                 </TouchableOpacity>
             </View>
         </SafeAreaView>
@@ -21,7 +21,7 @@ const Header = () => {
 const styles = StyleSheet.create({
     container: {
         backgroundColor: "transparent",
-        height: 60,
+        height: 80,
         paddingVertical: 10,
         paddingHorizontal: 20,
         justifyContent: "space-between",
@@ -35,4 +35,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default Header;
+export default SearchHeader;
