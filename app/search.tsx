@@ -1,16 +1,31 @@
 import { useState } from 'react';
-import { StyleSheet, View, Text, TextInput, Button, TouchableOpacity, Alert, ScrollView, SafeAreaView } from 'react-native';
+import { StyleSheet, View, Text, TextInput, TouchableOpacity, Alert, ScrollView, SafeAreaView } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
+import { MaterialCommunityIcons } from '@expo/vector-icons';
+import WeatherApi from '@/assets/api/weatherAPI';
 
 export default function Search() {
   const [text, setText] = useState('');
+  const [searchResults, setSearchResults] = useState<{ id: number; name: string; country: string }[]>([]);
 
   const onChangeText = (inputText: string) => {
     setText(inputText);
   };
 
-  const handleSearch = () => {
-    Alert.alert('Search Button Pressed', `You searched for: ${text}`);
+  const handleSearch = async () => {
+    try {
+      const results = await WeatherApi.search(text);
+
+      if (results.length === 0) {
+        Alert.alert('No Results', `No city data found for "${text}".`);
+      } else {
+        setSearchResults(results);
+        console.log(results)
+        Alert.alert('Search Complete', `City data for "${text}" retrieved.`);
+      }
+    } catch (error) {
+      Alert.alert('Error', 'Failed to search weather data.');
+    }
   };
 
   const boxes = () => {
@@ -49,19 +64,33 @@ export default function Search() {
               <FontAwesome name="search" size={24} color="#000" />
             </TouchableOpacity>
           </View>
-          <View style={{paddingHorizontal: 10, gap: 20, flex: 1}}>
-            <Text style={{color: "#fff", fontSize: 25}}>Weather Insights:</Text>
-            <ScrollView showsVerticalScrollIndicator={false}>
-              {boxes()}
-              {boxes()}
-              {boxes()}
-              {boxes()}
-              {boxes()}
-              {boxes()}
-              {boxes()}
-              {boxes()}
-            </ScrollView>
-          </View>
+            {searchResults.length > 0 ? (
+              <View style={{paddingHorizontal: 10, gap: 20, flex: 1}}>
+                <Text style={{color: "#fff", fontSize: 25}}>Result:</Text>
+                <ScrollView showsVerticalScrollIndicator={false}>
+                {searchResults.map((result) => (
+                  <View key={result.id} style={{flexDirection: "row", alignItems: "center", marginBottom: 20, gap: 5}}>
+                    <MaterialCommunityIcons name="map-marker" size={24} color="#fff" />
+                    <Text style={styles.text}>{result.name}, {result.country}</Text>
+                  </View>
+                ))}
+                </ScrollView>
+              </View>
+            ):(
+              <View style={{paddingHorizontal: 10, gap: 20, flex: 1}}>
+                <Text style={{color: "#fff", fontSize: 25}}>Weather Insights:</Text>
+                <ScrollView showsVerticalScrollIndicator={false}>
+                  {boxes()}
+                  {boxes()}
+                  {boxes()}
+                  {boxes()}
+                  {boxes()}
+                  {boxes()}
+                  {boxes()}
+                  {boxes()}
+                </ScrollView>
+              </View>
+            )}
         </View>
       </SafeAreaView>
   );
