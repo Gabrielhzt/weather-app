@@ -11,7 +11,7 @@ const SearchHeader = () => {
             <View style={styles.container}>
                 <Text style={styles.title}>Search</Text>
                 <TouchableOpacity onPress={() => navigation.navigate('index')}>
-                <MaterialIcons name="keyboard-arrow-down" size={40} color="#fff" />
+                    <MaterialIcons name="keyboard-arrow-down" size={40} color="#fff" />
                 </TouchableOpacity>
             </View>
         </SafeAreaView>
