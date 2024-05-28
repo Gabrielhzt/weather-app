@@ -1,10 +1,10 @@
+import React, { useEffect } from 'react';
+import { StatusBar } from 'react-native';
 import SearchHeader from '@/components/searchHeader';
 import FontAwesome from '@expo/vector-icons/FontAwesome';
 import { useFonts } from 'expo-font';
 import { Stack } from 'expo-router';
 import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
-import { Text } from 'react-native';
 import 'react-native-reanimated';
 
 export {
@@ -41,7 +41,12 @@ export default function RootLayout() {
     return null;
   }
 
-  return <RootLayoutNav />;
+  return (
+    <>
+      <StatusBar barStyle="light-content" />
+      <RootLayoutNav />
+    </>
+  );
 }
 
 function RootLayoutNav() {

@@ -4,6 +4,7 @@ import { AntDesign } from '@expo/vector-icons';
 import { useNavigation } from 'expo-router';
 import { CurrentWeatherResponse } from '@/assets/api/weatherAPI';
 
+
 interface HeaderProps {
     city: string;
     current: CurrentWeatherResponse | null;
@@ -32,7 +33,7 @@ const Header: React.FC<HeaderProps> = ({ city, current }) => {
         <SafeAreaView style={{ backgroundColor: getBackgroundColor() }}>
             <View style={styles.container}>
                 <Text style={styles.title}>{city}</Text>
-                <TouchableOpacity onPress={() => navigation.navigate('search')}>
+                <TouchableOpacity onPress={() => navigation.navigate('search' as never)}>
                     <AntDesign name="bars" size={28} color="#fff" />
                 </TouchableOpacity>
             </View>

@@ -10,7 +10,7 @@ const SearchHeader = () => {
         <SafeAreaView style={{ backgroundColor: '#000'}}>
             <View style={styles.container}>
                 <Text style={styles.title}>Search</Text>
-                <TouchableOpacity onPress={() => navigation.navigate('index')}>
+                <TouchableOpacity onPress={() => navigation.navigate('index' as never)}>
                     <MaterialIcons name="keyboard-arrow-down" size={40} color="#fff" />
                 </TouchableOpacity>
             </View>
