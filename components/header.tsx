@@ -1,22 +1,44 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, Text, SafeAreaView, StyleSheet, TouchableOpacity } from 'react-native';
 import { AntDesign } from '@expo/vector-icons';
 import { useNavigation } from 'expo-router';
+import { CurrentWeatherResponse } from '@/assets/api/weatherAPI';
 
-const Header = () => {
+interface HeaderProps {
+    city: string;
+    current: CurrentWeatherResponse | null;
+}
+
+const Header: React.FC<HeaderProps> = ({ city, current }) => {
     const navigation = useNavigation();
 
+    useEffect(() => {
+        console.log(current);
+    }, [current]);
+
+    const getBackgroundColor = () => {
+        if (current) {
+            if (current.current.is_day === 0) {
+                return current.current.cloud > 50 ? '#424242' : '#000D27';
+            } else {
+                return current.current.cloud > 50 ? '#949494' : '#0082E0';
+            }
+        }
+        // Par défaut, retournez une couleur de fond
+        return '#0082E0';
+    };
+
     return (
-        <SafeAreaView style={{ backgroundColor: '#006AB6'}}>
+        <SafeAreaView style={{ backgroundColor: getBackgroundColor() }}>
             <View style={styles.container}>
-                <Text style={styles.title}>New York</Text>
+                <Text style={styles.title}>{city}</Text>
                 <TouchableOpacity onPress={() => navigation.navigate('search')}>
                     <AntDesign name="bars" size={28} color="#fff" />
                 </TouchableOpacity>
             </View>
         </SafeAreaView>
     );
-}
+};
 
 const styles = StyleSheet.create({
     container: {

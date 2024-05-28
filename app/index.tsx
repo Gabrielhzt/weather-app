@@ -2,85 +2,140 @@ import { Image, SafeAreaView, ScrollView, StyleSheet, Text, View } from 'react-n
 import { Stack } from 'expo-router';
 import Header from '@/components/header';
 import { Entypo } from '@expo/vector-icons';
-import { FontAwesome6 } from '@expo/vector-icons';
 import { Feather } from '@expo/vector-icons';
+import { useEffect, useState } from 'react';
+import WeatherApi, { CurrentWeatherResponse, ForecastDay } from '@/assets/api/weatherAPI';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function TabOneScreen() {
+  const [city, setCity] = useState('Shanghai');
+  const [forecast, setForecast] = useState<ForecastDay[]>([]);
+  const [current, setCurrent] = useState<CurrentWeatherResponse | null>(null);
+
+
+  useEffect(() => {
+    const fetchForecast = async () => {
+      try {
+        const response = await WeatherApi.getForecast(city);
+        const formattedForecast: ForecastDay[] = response.map(forecastItem => ({
+          date: forecastItem.date,
+          day: {
+            maxtemp_c: forecastItem.maxtemp_c,
+            mintemp_c: forecastItem.mintemp_c,
+            daily_chance_of_rain: forecastItem.daily_chance_of_rain,
+            maxwind_kph: forecastItem.maxwind_kph,
+            condition: {
+              text: forecastItem.condition_text,
+              icon: forecastItem.condition_icon
+            }
+          },
+          astro: {
+            sunset: forecastItem.sunset
+          }
+        }));
+        setForecast(formattedForecast);
+      } catch (error) {
+        console.error('Error fetching forecast data:', error);
+      }
+    };    
+
+    const fetchWeatherData = async () => {
+      try {
+        const response = await WeatherApi.getCurrentWeather(city);
+        setCurrent(response)
+        console.log(current)
+      } catch (error) {
+        console.error('Error fetching weather data:', error);
+      }
+    };
+  
+    fetchForecast();
+    fetchWeatherData();
+  }, [city]);
+
+  function getDayOfWeek(dateString: string): string {
+    const date = new Date(dateString);
+    const options: Intl.DateTimeFormatOptions = { weekday: 'long' };
+    const dayOfWeek: string = new Intl.DateTimeFormat('en-US', options).format(date);
+    return dayOfWeek.substring(0, 3);
+  }
+  
+
   return (
-    <View style={{ flex: 1, backgroundColor: '#006AB6' }}>
+    <LinearGradient
+      colors={current && current.current.is_day === 0 ? (current.current.cloud > 50 ? ['#424242', '#000D27'] : ['#000D27', '#002F8B']) : (current && current.current.cloud > 50 ? ['#949494', '#39ACFF'] : ['#0082E0', '#65BEFF'])}
+      style={{flex: 1}}
+    >
+    <View style={{ flex: 1 }}>
+
       <Stack.Screen
         options={{
-          header: () => <Header />,
+          header: () => <Header city={city} current={current}/>,
         }}
       />
       <SafeAreaView style={{ flex: 1}}>
         <View style={styles.content}>
-          <View style={styles.illustration}>
-            <Image source={require('@/assets/images/113.png')} style={{width: 200, height: 150}} />
-            <Text style={styles.temperature}>28°</Text>
-            <Text style={styles.text}>Precipitation</Text>
-            <Text style={styles.text}>Max: 31° Min: 25°</Text>
-          </View>
-          <View style={styles.allbox}>
-            <View style={styles.box}>
-              <View style={styles.info}>
-                <Entypo name="water" size={18} color="#fff" />
-                <Text style={styles.textinfo}>6%</Text>
-              </View>
-              <View style={styles.info}>
-                <FontAwesome6 name="temperature-three-quarters" size={18} color="#fff" />
-                <Text style={styles.textinfo}>90%</Text>
-              </View>
-              <View style={styles.info}>
-                <Feather name="wind" size={24} color="#fff" />
-                <Text style={styles.textinfo}>19 km/h</Text>
-              </View>
+        {forecast && forecast.length > 0 ? (
+          <>
+            <View style={styles.illustration}>
+            {current && current.current.is_day === 0 ? 
+              (current.current.cloud > 50 ? 
+                <Image source={require('@/assets/images/rain.png')} style={{width: 140, height: 130}} /> 
+                : 
+                <Image source={require('@/assets/images/moon.png')} style={{width: 200, height: 140}} />
+              ) 
+              : 
+              (current && current.current.cloud > 50 ? 
+                <Image source={require('@/assets/images/rain.png')} style={{width: 10, height: 150}} /> 
+                : 
+                <Image source={require('@/assets/images/sun.png')} style={{width: 180, height: 150}} />
+              )
+            }
+              <Text style={styles.temperature}>{current?.current.temp_c}°</Text>
+              <Text style={styles.text}>{forecast[0].day.condition.text}</Text>
+              <Text style={styles.text}>Max: {forecast[0].day.maxtemp_c}° Min: {forecast[0].day.mintemp_c}°</Text>
             </View>
-            <View style={styles.box2}>
-              <Text style={styles.description}>7-day Forecast</Text>
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flex: 1 }}>
-                  <View style={styles.day}>
-                    <Text style={styles.text}>28°C</Text>
-                    <Image source={require('@/assets/images/113.png')} style={{width: 40, height: 60}} />
-                    <Text style={styles.text}>15:00</Text>
-                  </View>
-                  <View style={styles.day}>
-                    <Text style={styles.text}>28°C</Text>
-                    <Image source={require('@/assets/images/113.png')} style={{width: 60, height: 60}} />
-                    <Text style={styles.text}>15:00</Text>
-                  </View>
-                  <View style={styles.day}>
-                    <Text style={styles.text}>28°C</Text>
-                    <Image source={require('@/assets/images/113.png')} style={{width: 60, height: 60}} />
-                    <Text style={styles.text}>15:00</Text>
-                  </View>
-                  <View style={styles.day}>
-                    <Text style={styles.text}>28°C</Text>
-                    <Image source={require('@/assets/images/113.png')} style={{width: 60, height: 60}} />
-                    <Text style={styles.text}>15:00</Text>
-                  </View>
-                  <View style={styles.day}>
-                    <Text style={styles.text}>28°C</Text>
-                    <Image source={require('@/assets/images/113.png')} style={{width: 60, height: 60}} />
-                    <Text style={styles.text}>15:00</Text>
-                  </View>
-                  <View style={styles.day}>
-                    <Text style={styles.text}>28°C</Text>
-                    <Image source={require('@/assets/images/113.png')} style={{width: 60, height: 60}} />
-                    <Text style={styles.text}>15:00</Text>
-                  </View>
-                  <View style={styles.day}>
-                    <Text style={styles.text}>28°C</Text>
-                    <Image source={require('@/assets/images/113.png')} style={{width: 60, height: 60}} />
-                    <Text style={styles.text}>15:00</Text>
-                  </View>
+            <View style={styles.allbox}>
+              <View style={styles.box}>
+                <View style={styles.info}>
+                  <Entypo name="water" size={14} color="#fff" />
+                  <Text style={styles.textinfo}>{forecast[0].day.daily_chance_of_rain}%</Text>
+                </View>
+                <View style={styles.info}>
+                  <Feather name="sunset" size={18} color="#fff" />
+                  <Text style={styles.textinfo}>{forecast[0].astro.sunset}</Text>
+                </View>
+                <View style={styles.info}>
+                  <Feather name="wind" size={18} color="#fff" />
+                  <Text style={styles.textinfo}>{forecast[0].day.maxwind_kph} km/h</Text>
+                </View>
+              </View>
+              <View style={styles.box2}>
+                <Text style={styles.description}>5-day Forecast</Text>
+                <ScrollView horizontal showsHorizontalScrollIndicator={false} style={{ flex: 1 }}>
+                  {forecast.map((day, index) => (
+                    <View style={styles.day} key={index}>
+                      <Text style={styles.text}>{day.day.maxtemp_c}°C</Text>
+                      {forecast[0].day.daily_chance_of_rain < 65 ? (
+                        <Image source={require('@/assets/images/sun.png')} style={{width: 40, height: 60}} />
+                      ):(
+                        <Image source={require('@/assets/images/rain.png')} style={{width: 40, height: 60}} />
+                      )}
+                      <Text style={styles.text}>{getDayOfWeek(day.date)} {day.date.substring(8)}</Text>
+                    </View>
+                  ))}
                   <View style={{width: 20}}></View>
-              </ScrollView>
+                </ScrollView>
+              </View>
             </View>
-          </View>
+          </>
+        ) : (
+          <Text>Loading...</Text>
+        )}
         </View>
       </SafeAreaView>
     </View>
+    </LinearGradient>
   );
 }
 
@@ -132,7 +187,7 @@ const styles = StyleSheet.create({
   },
   textinfo: {
     color: "#fff",
-    fontSize: 16,
+    fontSize: 14,
   },
   description:{
     color: "#fff",
@@ -141,6 +196,7 @@ const styles = StyleSheet.create({
   day: {
     justifyContent: "space-around",
     alignItems: "center",
-    marginLeft: 20
+    marginLeft: 20,
+    marginRight: 20
   }
 });

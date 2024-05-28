@@ -27,6 +27,30 @@ export interface CurrentWeatherResponse {
   };
 }
 
+export interface ForecastDay {
+  date: string;
+  day: {
+    maxtemp_c: number;
+    mintemp_c: number;
+    daily_chance_of_rain: number;
+    maxwind_kph: number;
+    condition: {
+      text: string;
+      icon: string;
+    };
+  };
+  astro: {
+    sunset: string;
+  };
+}
+
+interface ForecastResponse {
+  forecast: {
+    forecastday: ForecastDay[];
+  }
+}
+
+
 const WeatherApi = {
 
   search: async (city: string): Promise<SearchResult[]> => {
@@ -49,7 +73,6 @@ const WeatherApi = {
 
   getCurrentWeather: async (city: string): Promise<CurrentWeatherResponse> => {
     try {
-        // Faire une requête GET à l'API météo avec la ville fournie
         const response: AxiosResponse<CurrentWeatherResponse> = await axios.get(`${BASE_URL}/current.json`, {
             params: {
                 key: API_KEY,
@@ -57,9 +80,6 @@ const WeatherApi = {
             }
         });
 
-        console.log(response.data)
-
-        // Filtrer les données pour ne retourner que les données pertinentes
         const filteredResponse: CurrentWeatherResponse = {
             location: {
                 name: response.data.location.name,
@@ -78,14 +98,40 @@ const WeatherApi = {
             }
         };
 
-        // Retourner les données filtrées
         return filteredResponse;
     } catch (error) {
-        // Gérer les erreurs
         console.error('Error fetching weather data:', error);
         throw error;
     }
-  }
+  },
+
+  getForecast: async (city: string) => {
+    try {
+      const response: AxiosResponse<ForecastResponse> = await axios.get(`${BASE_URL}/forecast.json`, {
+        params: {
+          key: API_KEY,
+          q: city,
+          days: 5
+        }
+      });
+
+      const filteredData = response.data.forecast.forecastday.map(forecast => ({
+        date: forecast.date,
+        maxtemp_c: forecast.day.maxtemp_c,
+        mintemp_c: forecast.day.mintemp_c,
+        daily_chance_of_rain: forecast.day.daily_chance_of_rain,
+        maxwind_kph: forecast.day.maxwind_kph,
+        condition_text: forecast.day.condition.text,
+        condition_icon: forecast.day.condition.icon,
+        sunset: forecast.astro.sunset
+      }));
+
+      return filteredData;
+    } catch (error) {
+      console.error('Error fetching weather forecast data:', error);
+      throw error;
+    }
+  }  
 }
 
 export default WeatherApi;
