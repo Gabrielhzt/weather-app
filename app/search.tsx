@@ -91,10 +91,12 @@ export default function Search() {
             <Text style={{ color: "#fff", fontSize: 25 }}>Result:</Text>
             <ScrollView showsVerticalScrollIndicator={false}>
               {searchResults.map((result) => (
-                <View key={result.id} style={{ flexDirection: "row", alignItems: "center", marginBottom: 20, gap: 5 }}>
-                  <MaterialCommunityIcons name="map-marker" size={24} color="#fff" />
-                  <Text style={styles.text}>{result.name}, {result.country}</Text>
-                </View>
+                <TouchableOpacity onPress={() => handleSelect(result.name)} key={result.id}>
+                  <View key={result.id} style={{ flexDirection: "row", alignItems: "center", marginBottom: 20, gap: 5 }}>
+                    <MaterialCommunityIcons name="map-marker" size={24} color="#fff" />
+                    <Text style={styles.text}>{result.name}, {result.country}</Text>
+                  </View>
+                </TouchableOpacity>
               ))}
             </ScrollView>
           </View>
