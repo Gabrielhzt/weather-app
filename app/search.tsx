@@ -1,12 +1,34 @@
-import { useState } from 'react';
-import { StyleSheet, View, Text, TextInput, TouchableOpacity, Alert, ScrollView, SafeAreaView } from 'react-native';
+import { useEffect, useState } from 'react';
+import { StyleSheet, View, Text, TextInput, TouchableOpacity, Alert, ScrollView, SafeAreaView, Image } from 'react-native';
 import { FontAwesome } from '@expo/vector-icons';
 import { MaterialCommunityIcons } from '@expo/vector-icons';
-import WeatherApi from '@/assets/api/weatherAPI';
+import WeatherApi, { CurrentWeatherResponse } from '@/assets/api/weatherAPI';
+import { LinearGradient } from 'expo-linear-gradient';
 
 export default function Search() {
   const [text, setText] = useState('');
   const [searchResults, setSearchResults] = useState<{ id: number; name: string; country: string }[]>([]);
+  const [insights, setInsights] = useState<CurrentWeatherResponse[]>([]);
+  
+  useEffect(() => {
+    const cities = ['New York', 'Paris', 'Tokyo', 'London', 'Los Angeles', 'Shanghai', 'Bangkok'];
+
+    const fetchWeatherData = async () => {
+      try {
+        const promises = cities.map(async (city) => {
+          const response = await WeatherApi.getCurrentWeather(city);
+          return response;
+        });
+
+        const results = await Promise.all(promises);
+        setInsights(results);
+      } catch (error) {
+        console.error('Error fetching weather data:', error);
+      }
+    };
+
+    fetchWeatherData();
+  }, []);
 
   const onChangeText = (inputText: string) => {
     setText(inputText);
@@ -20,6 +42,7 @@ export default function Search() {
         Alert.alert('No Results', `No city data found for "${text}".`);
       } else {
         setSearchResults(results);
+        console.log(insights)
         console.log(results)
         Alert.alert('Search Complete', `City data for "${text}" retrieved.`);
       }
@@ -27,27 +50,6 @@ export default function Search() {
       Alert.alert('Error', 'Failed to search weather data.');
     }
   };
-
-  const boxes = () => {
-    return (
-        <View style={styles.box}>
-          <View style={{flexDirection: "row", justifyContent: "space-between"}}>
-            <View style={{gap: 5}}>
-              <Text style={{color: "#fff", fontSize: 18}}>New York</Text>
-              <Text style={{color: "#fff", fontSize: 13}}>10:30</Text>
-            </View>
-            <Text style={{color: "#fff", fontSize: 35}}>28°</Text>
-          </View>
-          <View style={{flexDirection: "row", justifyContent: "space-between"}}>
-            <Text style={{color: "#fff", fontSize: 13}}>Sunny</Text>
-            <View style={{flexDirection: "row", gap: 5}}>
-              <Text style={{color: "#fff", fontSize: 13}}>28°</Text>
-              <Text style={{color: "#fff", fontSize: 13}}>21°</Text>
-            </View>
-          </View>
-        </View>
-    )
-  }
 
   return (
       <SafeAreaView style={{flex: 1, backgroundColor: "#000"}}>
@@ -80,14 +82,27 @@ export default function Search() {
               <View style={{paddingHorizontal: 10, gap: 20, flex: 1}}>
                 <Text style={{color: "#fff", fontSize: 25}}>Weather Insights:</Text>
                 <ScrollView showsVerticalScrollIndicator={false}>
-                  {boxes()}
-                  {boxes()}
-                  {boxes()}
-                  {boxes()}
-                  {boxes()}
-                  {boxes()}
-                  {boxes()}
-                  {boxes()}
+                  {insights.map((props) => (
+                      <LinearGradient
+                        colors={props.current.is_day ? (props.current.cloud > 50 ? ['#949494', '#39ACFF'] : ['#0082E0', '#65BEFF']) : (props.current.cloud > 50 ? ['#424242', '#000D27'] : ['#000D27', '#02266C'])}
+                        style={styles.box}
+                        key={props.location.name}
+                      >
+                        <View style={{flexDirection: "row", justifyContent: "space-between"}}>
+                          <View style={{gap: 5}}>
+                            <Text style={{color: "#fff", fontSize: 18}}>{props.location.name}</Text>
+                            <Text style={{color: "#fff", fontSize: 13}}>{props.location.localtime.split(' ')[1]}</Text>
+                          </View>
+                          <Text style={{color: "#fff", fontSize: 35}}>{props.current.temp_c}°</Text>
+                        </View>
+                        <View style={{flexDirection: "row", justifyContent: "space-between"}}>
+                          <Text style={{color: "#fff", fontSize: 13}}>{props.current.condition.text}</Text>
+                          <View style={{flexDirection: "row", gap: 5}}>
+                            <Text style={{color: "#fff", fontSize: 13}}>{props.location.localtime.split(' ')[0]}</Text>
+                          </View>
+                        </View>
+                      </LinearGradient>
+                  ))}
                 </ScrollView>
               </View>
             )}
@@ -131,5 +146,12 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     height: 110,
     marginBottom: 20
-  }
+  }, 
+  gradient: {
+    width: 300,
+    height: 300,
+    justifyContent: 'center',
+    alignItems: 'center',
+    borderRadius: 20,
+  },
 });
